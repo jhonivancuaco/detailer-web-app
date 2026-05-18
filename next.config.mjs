@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    proxyClientMaxBodySize: "80mb",
+  },
   reactCompiler: process.env.NODE_ENV === "production",
   reactStrictMode: false,
   skipTrailingSlashRedirect: true,

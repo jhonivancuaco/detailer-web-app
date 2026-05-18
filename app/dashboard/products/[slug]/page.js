@@ -1049,6 +1049,10 @@ export default function ProductDetailPage() {
     filename: "",
   });
 
+  const closeMediaPreview = () => {
+    setMediaPreview({ isOpen: false, url: "", filename: "" });
+  };
+
   const handleMediaChange = (event) => {
     const files = Array.from(event.target.files || []);
     setMediaFiles(files);
@@ -1126,6 +1130,21 @@ export default function ProductDetailPage() {
       }
     };
   }, []);
+
+  useEffect(() => {
+    if (!mediaPreview.isOpen) return undefined;
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        closeMediaPreview();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [mediaPreview.isOpen]);
 
   useEffect(() => {
     if (!lastEditedHotspotItemUrl) return;
@@ -1673,7 +1692,17 @@ export default function ProductDetailPage() {
     <div className="space-y-8">
       <Toast toast={toast} onClose={() => setToast(null)} />
       {mediaPreview.isOpen && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/50 px-4 py-6">
+        <div
+          className="fixed inset-0 z-40 flex items-center justify-center bg-black/50 px-4 py-6"
+          role="dialog"
+          aria-modal="true"
+          aria-label={mediaPreview.filename || "Media preview"}
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              closeMediaPreview();
+            }
+          }}
+        >
           <div className="max-h-[90vh] w-full max-w-5xl overflow-hidden rounded-2xl bg-white shadow-xl">
             <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
               <div className="text-sm font-semibold text-gray-800 truncate">
@@ -1681,8 +1710,9 @@ export default function ProductDetailPage() {
               </div>
               <button
                 type="button"
-                onClick={() => setMediaPreview({ isOpen: false, url: "", filename: "" })}
+                onClick={closeMediaPreview}
                 className="text-gray-400 hover:text-gray-600"
+                aria-label="Close preview"
               >
                 &#10005;
               </button>
